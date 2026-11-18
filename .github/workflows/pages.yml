@@ -1,0 +1,69 @@
+name: Deploy RoomSync to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare static site
+        run: |
+          mkdir -p _site
+          cp index.html style.css script.js _site/
+
+      - name: Configure API URL
+        env:
+          ROOMSYNC_API_BASE: ${{ vars.ROOMSYNC_API_BASE }}
+        run: |
+          if [ -z "$ROOMSYNC_API_BASE" ]; then
+            echo "::error::Set the ROOMSYNC_API_BASE repository variable to the deployed API URL."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import html
+          import os
+          import re
+          from pathlib import Path
+
+          index = Path("_site/index.html")
+          content = index.read_text(encoding="utf-8")
+          content, replacements = re.subn(
+              r'(<meta name="roomsync-api-base" content=")[^"]*(">)',
+              lambda match: match.group(1) + html.escape(os.environ["ROOMSYNC_API_BASE"].rstrip("/"), quote=True) + match.group(2),
+              content,
+              count=1,
+          )
+          if replacements != 1:
+              raise SystemExit("Could not configure the RoomSync API URL in index.html.")
+          index.write_text(content, encoding="utf-8")
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

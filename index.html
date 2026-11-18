@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="roomsync-api-base" content="">
+  <title>RoomSync — Shared living, in sync</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" data-page="dashboard" aria-label="RoomSync home">
+        <span class="brand-mark"><i class="bi bi-house-heart-fill"></i></span>
+        <span class="brand-name">room<span>sync</span><small>SHARED LIVING, IN SYNC</small></span>
+      </a>
+      <div class="room-switcher">
+        <span class="room-avatar"><i class="bi bi-house"></i></span>
+        <span><strong>No room created yet</strong><small>0 roommates · get started</small></span>
+        <i class="bi bi-chevron-expand ms-auto"></i>
+      </div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <span class="nav-caption">WORKSPACE</span>
+        <a href="#" class="nav-link active" data-page="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <a href="#" class="nav-link" data-page="room"><i class="bi bi-people"></i> My room</a>
+        <a href="#" class="nav-link" data-page="rent"><i class="bi bi-calculator"></i> Rent calculator</a>
+        <a href="#" class="nav-link" data-page="expenses"><i class="bi bi-receipt"></i> Expenses <span class="nav-count" id="expenseNavCount">0</span></a>
+        <a href="#" class="nav-link" data-page="shopping"><i class="bi bi-basket2"></i> Shopping</a>
+        <a href="#" class="nav-link" data-page="payments"><i class="bi bi-arrow-left-right"></i> Payments</a>
+        <a href="#" class="nav-link" data-page="history"><i class="bi bi-person-lines-fill"></i> Individual history</a>
+        <span class="nav-caption nav-caption-spaced">ROOM LIFE</span>
+        <a href="#" class="nav-link" data-page="inventory"><i class="bi bi-box-seam"></i> Inventory</a>
+        <a href="#" class="nav-link" data-page="locations"><i class="bi bi-geo-alt"></i> Places</a>
+        <a href="#" class="nav-link" data-page="notices"><i class="bi bi-chat-square-text"></i> Notice board</a>
+        <a href="#" class="nav-link" data-page="list"><i class="bi bi-list-check"></i> Shopping list</a>
+        <a href="#" class="nav-link" data-page="reminders"><i class="bi bi-bell"></i> Reminders</a>
+        <a href="#" class="nav-link" data-page="calendar"><i class="bi bi-calendar3"></i> Shared calendar</a>
+        <span class="nav-caption nav-caption-spaced">INSIGHTS</span>
+        <a href="#" class="nav-link" data-page="leaderboard"><i class="bi bi-trophy"></i> Leaderboard</a>
+        <a href="#" class="nav-link" data-page="reports"><i class="bi bi-bar-chart-line"></i> Reports</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-tip"><span class="tip-icon"><i class="bi bi-stars"></i></span><strong>Good things happen<br>when we share.</strong><small>Keep your room life in sync.</small></div>
+        <button class="profile-button" id="profileButton" type="button"><span class="profile-avatar">?</span><span><strong>Your profile</strong><small>Set up profile</small></span><i class="bi bi-three-dots ms-auto"></i></button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button id="menuToggle" class="icon-button mobile-menu" type="button" aria-label="Open menu"><i class="bi bi-list"></i></button>
+        <div class="breadcrumb-label"><span>No room</span><i class="bi bi-chevron-right"></i><strong id="breadcrumbPage">Dashboard</strong></div>
+        <div class="topbar-actions">
+          <div class="top-date"><i class="bi bi-calendar4"></i><span id="todayLabel"></span></div>
+          <button class="icon-button theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
+          <button class="icon-button notification-button" data-page="reminders" type="button" aria-label="View reminders"><i class="bi bi-bell"></i><span class="notification-dot"></span></button>
+          <button class="top-avatar" id="topProfile" type="button" title="Account">?</button>
+        </div>
+      </header>
+      <div class="page-content" id="pageContent" aria-live="polite"></div>
+      <footer class="app-footer"><span>Made for better shared living <i class="bi bi-heart-fill"></i></span><span>RoomSync <b>·</b> Your home, in harmony</span></footer>
+    </main>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer" aria-live="polite"></div>
+  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content auth-card">
+        <div class="modal-header border-0 pb-0"><button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body px-4 px-md-5 pb-5">
+          <div class="auth-brand"><span class="brand-mark"><i class="bi bi-house-heart-fill"></i></span></div>
+          <h2 id="authTitle">Welcome to RoomSync</h2><p class="muted-copy">Sign in or create an account to manage your shared home.</p>
+          <div class="auth-tabs"><button type="button" class="auth-tab active" data-auth="login">Sign in</button><button type="button" class="auth-tab" data-auth="register">Create account</button></div>
+          <form id="authForm">
+            <label class="form-label" for="authName" id="authNameLabel" hidden>Your name</label>
+            <input class="form-control mb-3" id="authName" name="name" placeholder="Your name" hidden>
+            <label class="form-label" for="authEmail">Email address</label>
+            <input class="form-control mb-3" id="authEmail" name="email" type="email" placeholder="you@example.com" required>
+            <label class="form-label" for="authPassword">Password</label>
+            <input class="form-control mb-4" id="authPassword" name="password" type="password" placeholder="At least 8 characters" minlength="8" required>
+            <button class="btn btn-primary w-100" id="authSubmit" type="submit">Sign in to RoomSync <i class="bi bi-arrow-right ms-1"></i></button>
+          </form>
+          <button class="btn btn-outline-secondary w-100 mt-2" id="authLogout" type="button" hidden>Sign out</button>
+          <p class="auth-demo-note"><i class="bi bi-shield-lock"></i> Sign in or create an account to save your room data securely.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
